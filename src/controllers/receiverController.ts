@@ -1,17 +1,16 @@
 import { Request, Response } from 'express';
 import { ReceiverService } from '../services/receiverService';
 import { MqttBroker } from '../helper/mqttBroker';
-import { MessageCreator } from '../helper/messageCreater';
+import { initializeServices } from '../config/serviceInitializer';
 
 export class ReceiverController {
     private readonly receiverService: ReceiverService;
     private readonly mqttBroker: MqttBroker;
 
     constructor() {
-        const messageCreator = new MessageCreator();
-        this.receiverService = new ReceiverService(messageCreator);
-        this.mqttBroker = MqttBroker.getInstance();
-        this.mqttBroker.setReceiverService(this.receiverService);
+        const services = initializeServices();
+        this.receiverService = services.receiverService;
+        this.mqttBroker = services.mqttBroker;
     }
 
     public async receiveMessage(req: Request, res: Response): Promise<void> {

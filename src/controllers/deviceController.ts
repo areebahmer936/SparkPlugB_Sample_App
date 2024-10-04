@@ -1,21 +1,16 @@
 import { Request, Response } from 'express';
 import { DeviceService } from '../services/deviceService';
-import { PublisherRepository } from '../repositories/publisherRepository';
-import { MqttBroker } from '../helper/mqttBroker';
-import { MessageCreator } from '../helper/messageCreater';
 import { ReceiverService } from '../services/receiverService';
+import { initializeServices } from '../config/serviceInitializer';
 
 export class DeviceController {
     private readonly deviceService: DeviceService;
     private readonly receiverService: ReceiverService;
 
     constructor() {
-        const messageCreator = new MessageCreator();
-        this.receiverService = new ReceiverService(messageCreator);
-        const mqttBroker = MqttBroker.getInstance();
-        mqttBroker.setReceiverService(this.receiverService);
-        const publisherRepository = new PublisherRepository(mqttBroker, messageCreator);
-        this.deviceService = new DeviceService(publisherRepository, messageCreator);
+        const services = initializeServices();
+        this.deviceService = services.deviceService;
+        this.receiverService = services.receiverService;
     }
 
     public sendDBIRTH = async (req: Request, res: Response): Promise<void> => {

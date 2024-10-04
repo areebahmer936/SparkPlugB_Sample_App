@@ -12,6 +12,15 @@ export class PublisherRepository implements IPublisherRepository {
         this.messageCreator = messageCreator;
     }
 
+    /**
+     * Publishes a message to the specified MQTT topic.
+     * 
+     * @param topic - The MQTT topic to publish the message to.
+     * @param payloadData - The payload data to be included in the message.
+     * @param messageType - The type of Sparkplug message to be created.
+     * @returns A promise that resolves when the message is successfully published.
+     * @throws An error if the publishing fails.
+     */
     public async publishMessage(topic: string, payloadData: any, messageType: string): Promise<void> {
         const payloadBuffer = await this.messageCreator.createSparkplugMessage(messageType, payloadData);
 
