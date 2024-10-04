@@ -1,6 +1,6 @@
 import { createDBIRTH, createDDEATH } from "../helper/messageCreater";
-import { IDeviceService } from "../interfaces/services/deviceService.interface";
-import { PublisherRepository } from "../repositories/publisher.repository";
+import { IDeviceService } from "../interfaces/deviceService";
+import { PublisherRepository } from "../repositories/publisherRepository";
 
 export class DeviceService implements IDeviceService {
     private repository: PublisherRepository;

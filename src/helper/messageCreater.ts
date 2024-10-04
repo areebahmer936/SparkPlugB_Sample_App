@@ -2,12 +2,12 @@ import { loadProtobuf } from './protobufLoader';
 
 export async function createSparkplugMessage(type: string, payloadData: any): Promise<Buffer> {
     const root = await loadProtobuf();
-    const PayloadProto = root.lookupType("org.eclipse.tahu.protobuf.Payload");
+    const PayloadProto = root.lookupType("com.cirruslink.sparkplug.protobuf.Payload");
 
     // Validate and create the message
     const payload = PayloadProto.create(payloadData);
     const uint8Array = PayloadProto.encode(payload).finish();
-    return Buffer.from(uint8Array);
+    return Buffer.from(uint8Array); 
 }
 
 export function createDBIRTH(deviceId: string) {

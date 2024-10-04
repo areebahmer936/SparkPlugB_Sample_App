@@ -1,7 +1,7 @@
 import mqtt from 'mqtt';
 import MQTTBroker from '../helper/mqttBroker';
 import { createSparkplugMessage } from '../helper/messageCreater';
-import { IPublisherRepository } from '../interfaces/repositories/publisherRepositoryInterface';
+import { IPublisherRepository } from '../interfaces/publisherRepository';
 
 export class PublisherRepository implements IPublisherRepository {
     private mqttClient: mqtt.MqttClient;
