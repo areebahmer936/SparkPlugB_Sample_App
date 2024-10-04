@@ -2,20 +2,10 @@ import { IReceiverService } from '../interfaces/receiverService';
 import { MessageCreator } from '../helper/messageCreater';
 import { ReceiverRepository } from '../repositories/receiverRepository';
 
-/**
- * ReceiverService class implements IReceiverService interface.
- * It handles incoming MQTT messages, decodes them, and manages message handlers.
- */
 export class ReceiverService implements IReceiverService {
     private messageCreator: MessageCreator;
     private receiverRepository: ReceiverRepository;
 
-    /**
-     * Constructs a new ReceiverService instance.
-     * 
-     * @param messageCreator - The MessageCreator used to decode incoming messages.
-     * @param receiverRepository - The ReceiverRepository instance for handling message notifications.
-     */
     constructor(messageCreator: MessageCreator, receiverRepository: ReceiverRepository) {
         this.messageCreator = messageCreator;
         this.receiverRepository = receiverRepository;

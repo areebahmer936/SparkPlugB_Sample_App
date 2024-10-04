@@ -1,11 +1,3 @@
-/**
- * DeviceService class implements IDeviceService interface.
- * It handles the creation and publishing of various Sparkplug B messages
- * including DBIRTH, DDEATH, NDEATH, NBIRTH, and DDATA.
- * 
- * This service uses a publisher repository to send messages and a message creator
- * to generate the appropriate payloads for each message type.
- */
 import { IDeviceService } from "../interfaces/deviceService";
 import { IMessageCreator } from "../interfaces/messageCreator";
 import { IPublisherRepository } from "../interfaces/publisherRepository";
@@ -14,12 +6,6 @@ export class DeviceService implements IDeviceService {
     private readonly publisherRepository: IPublisherRepository;
     private readonly messageCreator: IMessageCreator;
 
-    /**
-     * Constructs a new DeviceService instance.
-     * 
-     * @param publisherRepository - The repository used to publish messages.
-     * @param messageCreator - The creator used to generate message payloads.
-     */
     constructor(publisherRepository: IPublisherRepository, messageCreator: IMessageCreator) {
         this.publisherRepository = publisherRepository;
         this.messageCreator = messageCreator;
