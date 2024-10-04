@@ -1,54 +1,95 @@
-import { IMessageCreator } from '../interfaces/messageCreator';
 import { IReceiverService } from '../interfaces/receiverService';
+import { MessageCreator } from '../helper/messageCreater';
 
+/**
+ * ReceiverService class implements IReceiverService interface.
+ * It handles incoming MQTT messages, decodes them, and manages message handlers.
+ */
 export class ReceiverService implements IReceiverService {
-    private readonly messageCreator: IMessageCreator;
-    private messageCallbacks: Map<string, ((message: any) => void)[]> = new Map();
+    private messageCreator: MessageCreator;
+    private messageHandlers: Map<string, ((message: any) => void)[]> = new Map();
 
-    constructor(messageCreator: IMessageCreator) {
+    /**
+     * Constructs a new ReceiverService instance.
+     * 
+     * @param messageCreator - The MessageCreator used to decode incoming messages.
+     */
+    constructor(messageCreator: MessageCreator) {
         this.messageCreator = messageCreator;
     }
 
-    public async handleIncomingMessage(topic: string, message: Buffer): Promise<void> {
-        const decodedMessage = await this.messageCreator.decodeSparkplugMessage(message);
-        
-        // Log the received message
+    /**
+     * Handles an incoming MQTT message.
+     * Decodes the message and notifies all registered handlers for the topic.
+     * 
+     * @param topic - The MQTT topic of the incoming message.
+     * @param message - The raw message buffer.
+     */
+    public handleIncomingMessage = async (topic: string, message: Buffer): Promise<void> => {
         console.log(`Received message on topic: ${topic}`);
-        console.log('Decoded message:', decodedMessage);
-
-        const callbacks = this.messageCallbacks.get(topic) || [];
-        callbacks.forEach(callback => callback(decodedMessage));
+        try {
+            const decodedMessage = await this.messageCreator.decodeSparkplugMessage(message);
+            console.log('Decoded message:', decodedMessage);
+            
+            // Notify all handlers for this topic
+            const handlers = this.messageHandlers.get(topic) || [];
+            handlers.forEach(handler => handler(decodedMessage));
+        } catch (error) {
+            console.error('Error decoding message:', error);
+        }
     }
 
-    public waitForMessage(topic: string, timeout: number = 30000): Promise<any> {
+    /**
+     * Waits for a message on a specific topic.
+     * Returns a promise that resolves with the decoded message or rejects on timeout.
+     * 
+     * @param topic - The MQTT topic to wait for.
+     * @param timeout - The maximum time to wait in milliseconds (default: 30000).
+     * @returns A promise that resolves with the decoded message.
+     */
+    public waitForMessage = async (topic: string, timeout: number = 30000): Promise<any> => {
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
-                this.removeCallback(topic, callback);
+                this.removeMessageHandler(topic, messageHandler);
                 reject(new Error('Timeout waiting for message'));
             }, timeout);
 
-            const callback = (message: any) => {
+            const messageHandler = (decodedMessage: any) => {
                 clearTimeout(timer);
-                this.removeCallback(topic, callback);
-                resolve(message);
+                this.removeMessageHandler(topic, messageHandler);
+                resolve(decodedMessage);
             };
 
-            this.addCallback(topic, callback);
+            this.addMessageHandler(topic, messageHandler);
         });
     }
 
-    private addCallback(topic: string, callback: (message: any) => void): void {
-        const callbacks = this.messageCallbacks.get(topic) || [];
-        callbacks.push(callback);
-        this.messageCallbacks.set(topic, callbacks);
+    /**
+     * Adds a message handler for a specific topic.
+     * 
+     * @param topic - The MQTT topic to add the handler for.
+     * @param handler - The handler function to be called when a message is received.
+     */
+    private addMessageHandler(topic: string, handler: (message: any) => void): void {
+        if (!this.messageHandlers.has(topic)) {
+            this.messageHandlers.set(topic, []);
+        }
+        this.messageHandlers.get(topic)!.push(handler);
     }
 
-    private removeCallback(topic: string, callback: (message: any) => void): void {
-        const callbacks = this.messageCallbacks.get(topic) || [];
-        const index = callbacks.indexOf(callback);
-        if (index !== -1) {
-            callbacks.splice(index, 1);
-            this.messageCallbacks.set(topic, callbacks);
+    /**
+     * Removes a message handler for a specific topic.
+     * 
+     * @param topic - The MQTT topic to remove the handler from.
+     * @param handler - The handler function to be removed.
+     */
+    private removeMessageHandler(topic: string, handler: (message: any) => void): void {
+        const handlers = this.messageHandlers.get(topic);
+        if (handlers) {
+            const index = handlers.indexOf(handler);
+            if (index !== -1) {
+                handlers.splice(index, 1);
+            }
         }
     }
 }

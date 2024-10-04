@@ -12,36 +12,37 @@ export class DeviceController {
     constructor() {
         const messageCreator = new MessageCreator();
         this.receiverService = new ReceiverService(messageCreator);
-        const mqttBroker = MqttBroker.getInstance(this.receiverService);
+        const mqttBroker = MqttBroker.getInstance();
+        mqttBroker.setReceiverService(this.receiverService);
         const publisherRepository = new PublisherRepository(mqttBroker, messageCreator);
         this.deviceService = new DeviceService(publisherRepository, messageCreator);
     }
 
-    public async sendDBIRTH(req: Request, res: Response): Promise<void> {
+    public sendDBIRTH = async (req: Request, res: Response): Promise<void> => {
         const { deviceId } = req.query;
         await this.deviceService.sendDBIRTH(String(deviceId));
         res.status(200).json({ message: 'DBIRTH message sent successfully' });
     }
 
-    public async sendDDEATH(req: Request, res: Response): Promise<void> {
+    public sendDDEATH = async (req: Request, res: Response): Promise<void> => {
         const { deviceId } = req.query;
         await this.deviceService.sendDDEATH(String(deviceId));
         res.status(200).json({ message: 'DDEATH message sent successfully' });
     }
 
-    public async sendNDEATH(req: Request, res: Response): Promise<void> {
+    public sendNDEATH = async (req: Request, res: Response): Promise<void> => {
         const { nodeId } = req.query;
         await this.deviceService.sendNDEATH(String(nodeId));
         res.status(200).json({ message: 'NDEATH message sent successfully' });
     }
 
-    public async sendNBIRTH(req: Request, res: Response): Promise<void> {
+    public sendNBIRTH = async (req: Request, res: Response): Promise<void> => {
         const { nodeId } = req.query;
         await this.deviceService.sendNBIRTH(String(nodeId));
         res.status(200).json({ message: 'NBIRTH message sent successfully' });
     }
 
-    public async sendDDATA(req: Request, res: Response): Promise<void> {
+    public sendDDATA = async (req: Request, res: Response): Promise<void> => {
         const { deviceId } = req.query;
         const { temperature, humidity } = req.body;
         await this.deviceService.sendDDATA(String(deviceId), temperature, humidity);
